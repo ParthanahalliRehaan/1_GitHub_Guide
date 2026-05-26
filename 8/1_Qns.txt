@@ -1,0 +1,50 @@
+---
+
+## 🔍 Why rebase usually needs `--force`
+- When you **merge**, Git creates a new merge commit but keeps both histories intact. The commit IDs of your old work don’t change.
+- When you **rebase**, Git **replays your commits** on top of the remote branch. That means Git creates **new commit objects** with new IDs (even if the content is the same).
+- Because the commit IDs are different, your local branch history no longer matches the remote. From Git’s perspective, it looks like you’re trying to rewrite history.
+- That’s why a normal `git push` is rejected — Git doesn’t want you to accidentally overwrite someone else’s work. You need `git push --force` to tell Git: *“Yes, I know these are new commits, overwrite the remote with my rebased history.”*
+
+---
+
+## 🎯 So what’s the point of rebase?
+The point isn’t to avoid force pushing — it’s to keep your history **linear and clean**:
+
+### Merge history (messy bubble):
+```
+*   ccce7dd Merge commit
+|\
+| * 4ec6c65 Remote Dawn 2
+* | 10eda99 Local Dawn 2
+|/
+* 5bf9eb3 Dawn 1
+```
+
+### Rebase history (linear):
+```
+* 10eda99 Local Dawn 2 (rebased)
+* 4ec6c65 Remote Dawn 2
+* 5bf9eb3 Dawn 1
+```
+
+- Easier to read logs (`git log`).
+- Easier to bisect/debug.
+- No unnecessary merge commits cluttering history.
+
+---
+
+## ⚡ When you don’t need `--force`
+In your case, after you used `git reflog` + `git reset`, your local branch tip aligned in a way that made the push a **fast-forward**. That’s why you didn’t need `--force`. But that’s the exception — normally, rebase changes commit IDs, so force push is required.
+
+---
+
+## 🧭 Practical takeaway
+- **Merge** → no force push, but messy history.  
+- **Rebase** → usually needs force push, but gives clean history.  
+- If you’re working alone, force push is safe.  
+- If you’re collaborating, you need to coordinate (others must rebase too).  
+
+---
+
+👉 So the point of rebase is **not to avoid force pushing** — it’s to keep your history clean and linear. Force pushing is just the price you pay for that clarity.  

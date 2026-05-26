@@ -1,0 +1,83 @@
+## 🌳 Git Subtrees
+
+### Definition
+A **Git subtree** is a way to embed another repository inside a subdirectory of your main repo. It merges the external repo’s history into your main repo, but everything is tracked by a single `.git`.
+
+### Why use Subtrees
+- Simplifies collaboration (no extra steps for teammates).
+- Single repo workflow (no nested `.git` folders).
+- Unified history (all commits visible in one timeline).
+- Easy syncing with external repos (`git subtree push/pull`).
+
+### Instructions
+```bash
+# Add external repo as a remote
+git remote add other-repo git@github.com:<user>/<other-repo>.git
+
+# Pull it into a subdirectory
+git subtree add --prefix=path/to/subtree other-repo main --squash
+
+# Make changes, commit in main repo
+git add path/to/subtree
+git commit -m "Update subtree content"
+git push origin main
+
+# Push changes back to external repo
+git subtree push --prefix=path/to/subtree other-repo main
+
+# Pull updates from external repo
+git subtree pull --prefix=path/to/subtree other-repo main --squash
+```
+
+---
+
+## 📦 Git Submodules
+
+### Definition
+A **Git submodule** is a repository inside another repository. The parent repo doesn’t store the submodule’s code directly, but instead a pointer to a specific commit of the submodule.
+
+### Why use Submodules
+- Keeps repos strictly separate.
+- Useful when you want to include another project but keep its history independent.
+- Good for libraries or dependencies that evolve separately.
+
+### Instructions
+```bash
+# Add submodule
+git submodule add git@github.com:<user>/<other-repo>.git path/to/submodule
+git commit -m "Add submodule"
+git push origin main
+
+# Work inside submodule
+cd path/to/submodule
+git add .
+git commit -m "Update submodule content"
+git push origin main
+
+# Update pointer in parent repo
+cd ..
+git add path/to/submodule
+git commit -m "Update submodule reference"
+git push origin main
+
+# Clone with submodules
+git clone <main-repo-url>
+git submodule update --init --recursive
+```
+
+---
+
+## ⚖️ Which is more “monorepo‑like”?
+
+- **Subtree** → closer to monorepo philosophy:
+  - One `.git` directory.
+  - Unified history.
+  - Contributors don’t need special commands.
+  - Feels like one big repo with multiple projects inside.
+
+- **Submodule** → more like multi‑repo management:
+  - Each project is its own repo.
+  - Requires extra steps to initialize/update.
+  - History is split.
+
+👉 **Verdict:** **Subtrees resonate more with monorepo style** because they give you a single repo workflow, unified commits, and simpler collaboration. Submodules are better if you want strict separation, but that’s less “monorepo” and more “linked repos.”

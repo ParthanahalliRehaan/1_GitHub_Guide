@@ -1,0 +1,131 @@
+---
+
+## 🟢 Path 1 — Merge (`git pull origin main`)
+
+### Step-by-step
+1. You try to push:
+   ```bash
+   git push
+   ```
+   → Rejected (non-fast-forward).
+
+2. You pull with merge:
+   ```bash
+   git pull origin main
+   ```
+   → Git fetches remote commits and attempts a merge.
+
+3. If conflicts occur:
+   - Edit the files to resolve conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+   - Then run either:
+     ```bash
+     git commit
+     ```
+     or:
+     ```bash
+     git merge --continue
+     ```
+     Both finalize the merge commit.
+
+4. Push:
+   ```bash
+   git push origin main
+   ```
+
+---
+
+### ASCII Diagram (after merge)
+```
+*   ccce7dd Merge commit
+|\
+| * 4ec6c65 (origin/main) Dawn 2 (remote)
+* | 10eda99 Dawn 2 (local)
+|/
+* 5bf9eb3 Dawn 1
+```
+
+👉 History has a **merge bubble**. Push works, but you didn’t like the non-linear log.
+
+---
+
+## 🔵 Path 2 — Rebase (`git pull --rebase origin main`)
+
+### Step-by-step
+1. You pull with rebase:
+   ```bash
+   git pull --rebase origin main
+   ```
+   → Git fetches remote commits, rewinds your branch to `origin/main`, then replays your local commits.
+
+2. If conflicts occur:
+   - Edit the files to resolve conflict markers.
+   - Then run:
+     ```bash
+     git rebase --continue
+     ```
+     ⚠️ Important: `git commit` **does not work here**. Only `git rebase --continue` completes the rebase sequence.
+
+3. After success, you may see detached HEAD:
+   ```bash
+   git branch
+   * (HEAD detached at 10eda99)
+     main
+   ```
+   → Fix by re-attaching:
+   ```bash
+   git checkout main
+   ```
+
+4. If `main` diverged, use:
+   ```bash
+   git reflog
+   git reset --hard <rebased-commit-id>
+   ```
+
+5. Push:
+   ```bash
+   git push origin main
+   ```
+   - Normally requires `--force` because commit IDs changed.
+   - In your case, after reset, it was a fast-forward, so normal push worked.
+
+---
+
+### ASCII Diagram (after rebase)
+```
+* 10eda99 (rebased local commit)
+* 4ec6c65 (origin/main)
+* 5bf9eb3 Dawn 1
+```
+
+👉 History is **linear**, no merge bubble. Cleaner log.
+
+---
+
+## ⚡ Key Difference
+- **Merge path** → resolve conflicts → `git commit` or `git merge --continue`.  
+- **Rebase path** → resolve conflicts → **only** `git rebase --continue` works.  
+
+---
+
+## 🧭 Commands Cheat Sheet
+```bash
+# Merge workflow
+git pull origin main
+# resolve conflicts
+git commit   # or git merge --continue
+git push origin main
+
+# Rebase workflow
+git pull --rebase origin main
+# resolve conflicts
+git rebase --continue   # NOT git commit
+git checkout main       # if detached
+git reflog && git reset --hard <commit>   # if needed
+git push origin main    # sometimes needs --force
+```
+
+---
+
+👉 So the journey was:  
+- Push rejected → Merge path (worked but ugly) → Rebase path (cleaner, but needed `rebase --continue` and reset) → Final push succeeded.  
